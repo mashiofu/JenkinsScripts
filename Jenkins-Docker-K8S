@@ -1,0 +1,28 @@
+node{
+    //def mavenHome = tool name: 'maven3.8.6'
+    stage('SCM Clone'){
+        git 'https://github.com/mashiofu/spring-boot-docker'
+    }
+    stage('MavenBuild'){
+        sh 'mvn clean package'
+        //'${mavenHome}/bin/mvn clean package'
+    }
+    stage('QualityReport'){
+        //sh '${mavenHome}/bin/mvn sonar:sonar'
+    }
+    stage('NexusUpload'){
+        //sh '${mavenHome}/bin/mvn deploy'
+    }
+    stage('BuilDockerImage'){
+        sh 'docker build -t mashiofu/spring-boot .'
+    }
+    stage('PushImage'){
+        sh 'docker push mashiofu/spring-boot'
+    }
+    stage('RemoveDockerImages'){
+        sh 'docker rmi $(docker images -q)'
+    }
+    stage('deployApptoK8S'){
+        sh 'kubectl apply -f springapp.yml'
+    }
+}
